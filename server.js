@@ -1,7 +1,10 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const cookieParser = require('cookie-parser');
+const fileupload = require('express-fileupload');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
@@ -13,19 +16,36 @@ connectDB();
 
 // Route files
 const bootcamps = require('./routers/bootcamps');
+const courses = require('./routers/courses');
+const auth = require('./routers/auth');
+const users = require('./routers/users');
+const reviews = require('./routers/reviews');
 
 const app = express();
 
 // Body parser
 app.use(express.json());
 
+// Cookie parser
+app.use(cookieParser());
+
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } 
 
+// File uploading
+app.use(fileupload());
+
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Mount routes
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/users', users);
+app.use('/api/v1/reviews', reviews);
 
 app.use(errorHandler);
 
